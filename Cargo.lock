@@ -1,0 +1,4 @@
+[root]
+name = "rust-ls"
+version = "0.1.0"
+
