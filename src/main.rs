@@ -2,6 +2,8 @@ use std::env;
 use std::path;
 use std::io;
 use std::error::Error;
+mod rust_ls;
+
 
 fn main() {
 	run().unwrap_or_else(|e| {
@@ -26,7 +28,7 @@ fn run() -> std::result::Result<(), String> {
 	
 	println!("Directory to list: {}", dir_to_list.display());
 	
-	list_directory_entries(dir_to_list.as_path()).map_err(|e| {
+	rust_ls::list_directory_entries(dir_to_list.as_path()).map_err(|e| {
 		format!("Error listing directory entries: {}", e.description())
 	})?;
 	
@@ -47,20 +49,3 @@ fn get_path_from_arg(arg: &String) -> std::io::Result<path::PathBuf> {
 	}
 }
 
-fn list_directory_entries(dir: &path::Path) -> std::io::Result<()> {
-	for entry in dir.read_dir()? {
-		let entry = entry?;
-		let entry_type = match entry.file_type()? {
-			t if t.is_dir() => "Directory",
-			t if t.is_file() => "File",
-			t if t.is_symlink() => "Symlink",
-			_ => "Unknown"
-		};
-		let entry_name = entry.file_name().into_string().unwrap_or_else(|_| {
-			String::from("<Error: name contains invalid unicode data>")
-		});
-		
-		println!("[{}] {}", entry_type, entry_name);
-	}
-	Ok(())
-}
